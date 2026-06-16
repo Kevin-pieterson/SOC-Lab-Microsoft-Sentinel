@@ -1,0 +1,59 @@
+// ============================================================
+// QUERY 3: Brute Force Attack Summary
+// Description: Count failed login attempts grouped by account
+// Use this to: Identify which accounts are being attacked
+//              and how many times each was targeted
+// ============================================================
+
+SecurityEvent
+| where EventID == 4625
+| summarize FailedAttempts = count() by TargetUserName
+| order by FailedAttempts desc
+
+
+// ============================================================
+// QUERY 4: Failed Logins Over Time (Timeline View)
+// Description: See when attacks happened — useful for spotting
+//              attack patterns or burst activity
+// ============================================================
+
+SecurityEvent
+| where EventID == 4625
+| summarize FailedAttempts = count() by bin(TimeGenerated, 1h), TargetUserName
+| order by TimeGenerated desc
+
+
+// ============================================================
+// QUERY 5: Full Brute Force Report — All Details
+// Description: Complete picture of the brute-force event
+// ============================================================
+
+SecurityEvent
+| where EventID == 4625
+| where TargetUserName == "testuser"
+| summarize
+    TotalAttempts = count(),
+    FirstAttempt = min(TimeGenerated),
+    LastAttempt = max(TimeGenerated)
+    by TargetUserName, Computer
+| extend DurationMinutes = datetime_diff('minute', LastAttempt, FirstAttempt)
+| project
+    TargetUserName,
+    Computer,
+    TotalAttempts,
+    FirstAttempt,
+    LastAttempt,
+    DurationMinutes
+
+
+// ============================================================
+// REAL LAB RESULTS:
+//
+// TargetUserName | Computer  | TotalAttempts | Duration
+// testuser       | SOC-WIN10 | 4             | ~28 minutes
+//
+// Note: 35,517 total Event ID 4625 events were captured
+// locally in Event Viewer on the VM, confirming successful
+// attack simulation. Sentinel received a subset forwarded
+// by Azure Monitor Agent.
+// ============================================================

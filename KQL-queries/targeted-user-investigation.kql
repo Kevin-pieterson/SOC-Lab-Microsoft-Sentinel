@@ -1,0 +1,33 @@
+// ============================================================
+// QUERY 2: Targeted User Investigation
+// Description: Investigate failed logins for a specific user
+// Target: testuser (attack simulation account)
+// Use this to: Confirm brute-force against one account
+// ============================================================
+
+SecurityEvent
+| where EventID == 4625
+| where TargetUserName == "testuser"
+| project
+    TimeGenerated,
+    TargetUserName,
+    Computer,
+    EventID,
+    Activity,
+    IpAddress,
+    LogonTypeName
+| order by TimeGenerated desc
+
+
+// ============================================================
+// ACTUAL RESULTS FROM LAB (6/13/2026):
+//
+// TimeGenerated [UTC]    | TargetUserName | Computer   | EventID
+// 6/13/2026 6:05:40 AM  | testuser       | SOC-WIN10  | 4625
+// 6/13/2026 6:05:36 AM  | testuser       | SOC-WIN10  | 4625
+// 6/13/2026 6:05:25 AM  | testuser       | SOC-WIN10  | 4625
+// 6/13/2026 6:05:12 AM  | testuser       | SOC-WIN10  | 4625
+//
+// Activity: 4625 - An account failed to log on
+// Total: 4 events confirmed
+// ============================================================

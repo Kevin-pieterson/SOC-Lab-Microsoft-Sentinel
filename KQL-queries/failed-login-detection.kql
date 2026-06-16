@@ -1,0 +1,27 @@
+// ============================================================
+// QUERY 1: Basic Failed Login Detection
+// Description: Detect all failed Windows login attempts
+// Event ID: 4625 — An account failed to log on
+// Use this to: See ALL failed logins on the system
+// ============================================================
+
+SecurityEvent
+| where EventID == 4625
+| project
+    TimeGenerated,
+    Computer,
+    Account,
+    TargetUserName,
+    IpAddress,
+    LogonTypeName,
+    Activity
+| order by TimeGenerated desc
+
+
+// ============================================================
+// EXPECTED RESULTS:
+// TimeGenerated       | Computer   | TargetUserName | EventID
+// 6/13/2026 6:27 AM  | SOC-WIN10  | Administrator  | 4625
+// 6/13/2026 6:26 AM  | SOC-WIN10  | Administrator  | 4625
+// ...
+// ============================================================
